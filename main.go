@@ -14,11 +14,11 @@ import (
 )
 
 var (
-	users    = []string{"bob", "peter", "john", "alex", "tom"}
-	paths    = []string{"/", "/login", "/api/v1"}
-	status   = []int{200, 404, 500}
-	errs     = []string{"out of memory", "cpu throttled", "circuit break"}
-	services = []string{"frontend", "signup", "accounting", "api"}
+	users      = []string{"bob", "peter", "john", "alex", "tom"}
+	paths      = []string{"/", "/login", "/api/v1"}
+	status     = []int{200, 404, 500}
+	errs       = []string{"out of memory", "cpu throttled", "circuit break"}
+	services   = []string{"frontend", "signup", "accounting", "api"}
 	randomness = 1 + rand.Intn(500)
 )
 
@@ -60,7 +60,7 @@ func serviceCall(l *zap.SugaredLogger, service string, status int) {
 		panic(err)
 	}
 	msg := "request received"
-	dur := time.Second * time.Duration(10*rand.Float64())
+	dur := time.Millisecond * time.Duration(500*rand.Float64()+0.01)
 
 	l.Infow(
 		msg,
@@ -133,7 +133,7 @@ func main() {
 			serviceCall(sugar, services[iService], status[iStatus])
 			time.Sleep(time.Second * time.Duration(3*rand.Float64()))
 		}
-	}
+	}()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
