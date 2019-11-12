@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -15,8 +16,10 @@ import (
 var (
 	users    = []string{"bob", "peter", "john", "alex", "tom"}
 	paths    = []string{"/", "/login", "/api/v1"}
+	status   = []int{200, 404, 500}
 	errs     = []string{"out of memory", "cpu throttled", "circuit break"}
 	services = []string{"frontend", "signup", "accounting", "api"}
+	randomness = 1 + rand.Intn(500)
 )
 
 func init() {
@@ -51,6 +54,23 @@ func serviceFailed(l *zap.SugaredLogger, service, err string) {
 	)
 }
 
+func serviceCall(l *zap.SugaredLogger, service string, status int) {
+	uuid, err := uuid.NewRandom()
+	if err != nil {
+		panic(err)
+	}
+	msg := "request received"
+	dur := time.Second * time.Duration(10*rand.Float64())
+
+	l.Infow(
+		msg,
+		"service", service,
+		"status", status,
+		"duration", dur,
+		"traceID", uuid,
+	)
+}
+
 func initLogger(path string) *zap.Logger {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.RFC3339NanoTimeEncoder
@@ -67,7 +87,7 @@ func initLogger(path string) *zap.Logger {
 }
 
 func main() {
-	logger := initLogger("./demo_log.log")
+	logger := initLogger("./logs/demo_log.log")
 	defer logger.Sync()
 	sugar := logger.Sugar()
 
@@ -75,10 +95,10 @@ func main() {
 	go func() {
 		attempts := make([]int, len(users))
 		for {
-			i := rand.Intn(500) % len(users)
+			i := randomness % len(users)
 			attempts[i]++
 			loginError(sugar, users[i], attempts[i])
-			time.Sleep(time.Millisecond * time.Duration(rand.Intn(500)))
+			time.Sleep(time.Second * time.Duration(rand.Intn(6)+1))
 		}
 	}()
 
@@ -87,24 +107,33 @@ func main() {
 		logins := make([]int, len(users))
 		for {
 			if time.Now().Second() >= 40 && time.Now().Second() <= 59 {
-				i := rand.Intn(500) % len(users)
+				i := randomness % len(users)
 				logins[i]++
 				loginSuccess(sugar, users[i], logins[i])
 			}
-			time.Sleep(time.Second * time.Duration(rand.Intn(4)+1))
+			time.Sleep(time.Second * time.Duration(rand.Intn(3)+1))
 		}
 	}()
 
 	// Log a random error
 	go func() {
 		for {
-			iError := (1 + rand.Intn(500)) % len(errs)
-			iService := (1 + rand.Intn(500)) % len(services)
-
+			iError := randomness % len(errs)
+			iService := randomness % len(services)
 			serviceFailed(sugar, services[iService], errs[iError])
 			time.Sleep(time.Second * time.Duration(rand.Intn(10)+1))
 		}
 	}()
+
+	// Some service call
+	go func() {
+		for {
+			iService := randomness % len(services)
+			iStatus := randomness % len(status)
+			serviceCall(sugar, services[iService], status[iStatus])
+			time.Sleep(time.Second * time.Duration(3*rand.Float64()))
+		}
+	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
