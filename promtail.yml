@@ -16,26 +16,28 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          __path__: ./*.log
+          __path__: ./logs/*.log
           job: demo_log
-          environment: dev
     pipeline_stages:
       - json:
           expressions:
             level: level
             time: ts
-            user: user
             service: service
             err: err
             action: action
             result: result
+            status: status
+            handler: handler
+            response_time: duration
       - labels:
           level:
-          user:
           service:
           err:
           action:
           result:
+          status:
+          handler:
       - timestamp:
           source: time
           format: RFC3339Nano
@@ -46,20 +48,28 @@ scrape_configs:
             source: time
             config:
               action: inc
-          # login_attempts_failed_total:
-          #   type: Counter
-          #   description: "Failed login attempts"
-          #   source: result
-          #   config:
-          #     value: "FAILED"
-          #     action: inc
-          # login_attempts_success_total:
-          #   type: Counter
-          #   description: "Successful login attempts"
-          #   source: result
-          #   config:
-          #     value: "SUCCESS"
-          #     action: inc
+          login_attempts_failed_total:
+            type: Counter
+            description: "Failed login attempts"
+            source: result
+            config:
+              value: "FAILED"
+              action: inc
+          login_attempts_success_total:
+            type: Counter
+            description: "Successful login attempts"
+            source: result
+            config:
+              value: "SUCCESS"
+              action: inc
+          response_time_seconds:
+            type: Histogram
+            description: "Response time in seconds"
+            source: response_time
+            config:
+              action: add
+              buckets: [0.1, 0.2, 0.5, 0.7, 0.9, 1.0]
+
 
   - job_name: journal
     journal:

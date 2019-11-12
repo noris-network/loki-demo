@@ -14,16 +14,19 @@ import (
 )
 
 var (
-	users      = []string{"bob", "peter", "john", "alex", "tom"}
-	paths      = []string{"/", "/login", "/api/v1"}
-	status     = []int{200, 404, 500}
-	errs       = []string{"out of memory", "cpu throttled", "circuit break"}
-	services   = []string{"frontend", "signup", "accounting", "api"}
-	randomness = 1 + rand.Intn(500)
+	users    = []string{"bob", "peter", "john", "alex", "tom"}
+	paths    = []string{"/", "/login", "/api/v1"}
+	status   = []int{200, 404, 500}
+	errs     = []string{"out of memory", "cpu throttled", "circuit break"}
+	services = []string{"frontend", "signup", "accounting", "api"}
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
+}
+
+func randomness() int {
+	return 1 + rand.Intn(500)
 }
 
 func loginError(l *zap.SugaredLogger, user string, attempt int) {
@@ -54,7 +57,7 @@ func serviceFailed(l *zap.SugaredLogger, service, err string) {
 	)
 }
 
-func serviceCall(l *zap.SugaredLogger, service string, status int) {
+func serviceCall(l *zap.SugaredLogger, status int, service, path string) {
 	uuid, err := uuid.NewRandom()
 	if err != nil {
 		panic(err)
@@ -65,8 +68,10 @@ func serviceCall(l *zap.SugaredLogger, service string, status int) {
 	l.Infow(
 		msg,
 		"service", service,
+		"action", "REQUEST",
 		"status", status,
 		"duration", dur,
+		"handler", path,
 		"traceID", uuid,
 	)
 }
@@ -95,7 +100,7 @@ func main() {
 	go func() {
 		attempts := make([]int, len(users))
 		for {
-			i := randomness % len(users)
+			i := randomness() % len(users)
 			attempts[i]++
 			loginError(sugar, users[i], attempts[i])
 			time.Sleep(time.Second * time.Duration(rand.Intn(6)+1))
@@ -107,7 +112,7 @@ func main() {
 		logins := make([]int, len(users))
 		for {
 			if time.Now().Second() >= 40 && time.Now().Second() <= 59 {
-				i := randomness % len(users)
+				i := randomness() % len(users)
 				logins[i]++
 				loginSuccess(sugar, users[i], logins[i])
 			}
@@ -118,9 +123,10 @@ func main() {
 	// Log a random error
 	go func() {
 		for {
-			iError := randomness % len(errs)
-			iService := randomness % len(services)
-			serviceFailed(sugar, services[iService], errs[iError])
+			serviceFailed(sugar,
+				services[randomness()%len(services)],
+				errs[randomness()%len(errs)],
+			)
 			time.Sleep(time.Second * time.Duration(rand.Intn(10)+1))
 		}
 	}()
@@ -128,9 +134,12 @@ func main() {
 	// Some service call
 	go func() {
 		for {
-			iService := randomness % len(services)
-			iStatus := randomness % len(status)
-			serviceCall(sugar, services[iService], status[iStatus])
+			serviceCall(
+				sugar,
+				status[randomness()%len(status)],
+				services[randomness()%len(services)],
+				paths[randomness()%len(paths)],
+			)
 			time.Sleep(time.Second * time.Duration(3*rand.Float64()))
 		}
 	}()
