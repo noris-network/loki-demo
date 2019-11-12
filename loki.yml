@@ -1,0 +1,88 @@
+# For more information see:
+# - https://github.com/grafana/loki/blob/master/docs/configuration/README.md
+# - https://github.com/grafana/loki/blob/master/docs/configuration/examples.md
+
+# No multi-tenancy
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  log_level: info
+
+# The ingester service is responsible for writing log data to long-term storage
+# backends (DynamoDB, S3, Cassandra, etc.) on the write path and returning log
+# data for in-memory queries on the read path.
+ingester:
+  # Lifecycler manages the lifecycle of an ingester in the hash ring.
+  lifecycler:
+    address: 127.0.0.1
+    # Set the backend of the hash ring to in-memory
+    ring:
+      kvstore:
+        store: inmemory
+      # The number of ingesters to write to and read from. Must be at least 1.
+      replication_factor: 1
+    # Duration to sleep before exiting to ensure metrics are scraped.
+    final_sleep: 0s
+  # How long chunks should sit in-memory with no updates before
+  # being flushed if they don't hit the max block size. This means
+  # that half-empty chunks will still be flushed after a certain
+  # period as long as they receieve no further activity.
+  chunk_idle_period: 5m
+  # How long chunks should be retained in-memory after they've
+  # been flushed.
+  chunk_retain_period: 30s
+
+# The configuration for chunk index schemas.
+schema_config:
+  configs:
+  - from: 2018-04-15
+    # Which store to use for the index.
+    store: boltdb
+    object_store: filesystem
+    schema: v9
+    index:
+      prefix: index_
+      period: 168h
+
+# Configures one of many possible stores for both the index and chunks. Which
+# configuration is read from depends on the schema_config block and what is set
+# for the store value.
+storage_config:
+  # Configures storing index in BoltDB.
+  boltdb:
+    directory: ./data/loki/index
+  # Configures storing the chunks on the local filesystem.
+  filesystem:
+    directory: ./data/loki/chunks
+
+# Configures global and per-tenant limits for ingesting logs in Loki.
+limits_config:
+  # Enforce every sample has a metric name.
+  enforce_metric_name: false
+  # Whether or not old samples will be rejected.
+  reject_old_samples: true
+  # Maximum accepted sample age before rejecting.
+  reject_old_samples_max_age: 168h
+
+# Configures how chunks will be cached and how long to wait before saving them
+# to the backing store.
+chunk_store_config:
+  # Limit how long back data can be queries.
+  max_look_back_period: 0
+
+# Configures how the table manager operates and how to provision tables when
+# DynamoDB is used as the backing store.
+table_manager:
+  chunk_tables_provisioning:
+    inactive_read_throughput: 0
+    inactive_write_throughput: 0
+    provisioned_read_throughput: 0
+    provisioned_write_throughput: 0
+  index_tables_provisioning:
+    inactive_read_throughput: 0
+    inactive_write_throughput: 0
+    provisioned_read_throughput: 0
+    provisioned_write_throughput: 0
+  retention_deletes_enabled: false
+  retention_period: 0
