@@ -2,7 +2,7 @@ version: "3.7"
 services:
   grafana:
     container_name: grafana
-    image: grafana/grafana
+    image: grafana/grafana:6.4.4
     volumes:
       - "grafana_data:/var/lib/grafana"
     network_mode: "host"
@@ -13,7 +13,6 @@ services:
       - "./prometheus.yml:/etc/prometheus/prometheus.yml"
       - "prom_data:/prometheus"
     network_mode: "host"
-
 volumes:
   grafana_data:
   prom_data:
