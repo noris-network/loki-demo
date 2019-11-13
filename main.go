@@ -63,7 +63,18 @@ func serviceCall(l *zap.SugaredLogger, status int, service, path string) {
 		panic(err)
 	}
 	msg := "request received"
-	dur := time.Millisecond * time.Duration(500*rand.Float64()+0.01)
+	var dur time.Duration
+
+	// Have some outliers.
+	rnd := randomness()
+	switch {
+	case rnd%6 == 0:
+		dur = time.Millisecond * time.Duration(1000*rand.Float64())
+	case rnd%12 == 0:
+		dur = time.Millisecond * time.Duration(5000*rand.Float64())
+	default:
+		dur = time.Millisecond * time.Duration(500*rand.Float64()+0.01)
+	}
 
 	l.Infow(
 		msg,

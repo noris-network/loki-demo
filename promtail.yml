@@ -41,6 +41,9 @@ scrape_configs:
       - timestamp:
           source: time
           format: RFC3339Nano
+      - regex:
+          source: service
+          expression: "(?P<service_requests>.+)"
       - metrics:
           log_lines_total:
             type: Counter
@@ -68,8 +71,13 @@ scrape_configs:
             source: response_time
             config:
               action: add
-              buckets: [0.1, 0.2, 0.5, 0.7, 0.9, 1.0]
-
+              buckets: [0.1, 0.2, 0.5, 0.7, 1.0, 1.3, 1.5, 1.8]
+          service_requests:
+            type: Counter
+            descripotion: "Requests to a service"
+            source: service_requests
+            config:
+              action: inc
 
   - job_name: journal
     journal:

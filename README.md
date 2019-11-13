@@ -50,11 +50,14 @@ make run/log_gen
 Access Grafana via http://localhost:3000 and add the following
 datasources:
 
-Datasource|URL
----|---
-Prometheus|http://localhost:9090
-Loki|http://localhost:3100
+Datasource|Name|URL
+---|---|---
+Prometheus|Prometheus|http://localhost:9090
+Loki|Loki|http://localhost:3100
+Prometheus|Loki as Prometheus|http://localhost:3100/loki
 
+> The "Loki as Prometheus" datasource is necessary to use aggregation functions like
+> `rate` or `count` over LogQL results.
 
 [loki]: https://github.com/grafana/loki
 [docker]: https://docs.docker.com/install/
