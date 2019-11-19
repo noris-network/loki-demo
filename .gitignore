@@ -1,5 +1,6 @@
 bin/*
-data/*
+data/loki/*
+data/promtail/*
 *.log
 
 !.gitkeep

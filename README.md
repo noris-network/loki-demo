@@ -23,22 +23,19 @@ With this setup Loki, Promtail and the [log_gen][log_gen] script
 will run locally, whereas Prometheus and Grafana will run inside
 Docker containers on the [host network][docker-net].
 
-First build `log_gen`:
+Run `make install` to build `ts_gen` and download Loki and
+Promtail:
 
 ```shell
-make build
-```
-
-Then download and extract the binaries in to `bin/`:
-
-```shell
-make download
+make install
 ```
 
 Next start the services:
 
+> Each of the below commands should be run in a separate
+> terminal window.
+
 ```shell
-# Each of the below commands should run in its own terminal window
 make run/loki
 make run/promtail
 make run/docker/up
@@ -56,11 +53,54 @@ Prometheus|Prometheus|http://localhost:9090
 Loki|Loki|http://localhost:3100
 Prometheus|Loki as Prometheus|http://localhost:3100/loki
 
-> The "Loki as Prometheus" datasource is necessary to use aggregation functions like
+> As of Grafana 6.4 the `Loki as Prometheus` datasource is necessary to use aggregation functions like
 > `rate` or `count` over LogQL results.
+
+![Datasources][ds_pic]
+
+You can then import the sample dashboard in `dashboards/log_gen.json`:
+
+![log_gen Dashboards][dashboard_example]
+
+Going on **Explore** on the left hand side lets you evaluate
+the logs via [LogQL][logql]:
+
+![Example LogQL query][query1]
+
+> As of Grafana 6.4, LogQL functions need to be sent agaist the
+> `Loki as Prometheus` datasource.
+
+![Example LogQL query with functions][query2]
+
+## Cleanup
+
+First stop all services that run in the foreground:
+
+```shell
+CTRL+c
+```
+
+Then shutdown the docker-compose stack:
+
+```shell
+make run/docker/down
+```
+
+Running `make clean` will remove the log file created by `log_gen`, all
+binaries, created Docker volumes and all data created by Loki and Promtail:
+
+```shell
+make clean
+```
 
 [loki]: https://github.com/grafana/loki
 [docker]: https://docs.docker.com/install/
 [go]: https://golang.org/doc/install
 [docker-net]: https://docs.docker.com/network/#network-driver-summary
 [log_gen]: https://github.com/noris-network/loki-demo/blob/master/main.go
+[ds_pic]: static/ds.png
+[dashboard_example]: static/dashboard_example.png
+[logql]: https://github.com/grafana/loki/blob/master/docs/logql.md
+[query1]: static/log_query_1.png
+[query2]: static/log_query_2.png
+
