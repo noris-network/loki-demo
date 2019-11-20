@@ -1,4 +1,4 @@
-LOKI_VERSION ?= v0.4.0
+LOKI_VERSION ?= v1.0.0
 BIN_DIR ?= bin
 LOG_DIR ?= logs
 DATA_DIR ?= data
