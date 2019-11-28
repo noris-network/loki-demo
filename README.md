@@ -5,6 +5,7 @@ export metrics over them.
 
 ## Getting started
 
+```
 Clone the repo:
 
 ```shell
@@ -67,10 +68,18 @@ the logs via [LogQL][logql]:
 
 ![Example LogQL query][query1]
 
+```
+{job="demo_log", service="api", level="error"} |= "cpu"
+```
+
 > As of Grafana 6.4, LogQL functions need to be sent agaist the
 > `Loki as Prometheus` datasource.
 
 ![Example LogQL query with functions][query2]
+
+```
+sum by(handler)(rate(({job="demo_log"})[5m]))
+```
 
 ## Cleanup
 
