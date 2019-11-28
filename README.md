@@ -5,7 +5,7 @@ export metrics over them.
 
 ## Getting started
 
-```
+
 Clone the repo:
 
 ```shell
@@ -41,6 +41,14 @@ make run/loki
 make run/promtail
 make run/docker/up
 make run/log_gen
+```
+
+If you have an AWS S3 bucket, you can store loki's chunks in it with.
+However, before running this command you need to update your S3 credentials
+and bucket in name in `loki-s3.yml`
+
+```shell
+make run/loki/s3
 ```
 
 ## Using it
