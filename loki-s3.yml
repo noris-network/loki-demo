@@ -40,7 +40,9 @@ schema_config:
     # Which store to use for the index.
     store: boltdb
     # this is for storing the log chunks locally
-    object_store: filesystem
+    #object_store: filesystem
+    # uncomment bellow to store the chunks in S3
+    object_store: s3
     schema: v9
     index:
       prefix: index_
@@ -53,9 +55,9 @@ storage_config:
   # Configures storing index in BoltDB.
   boltdb:
     directory: ./data/loki/index
-  # Configures storing the chunks on the local filesystem.
-  filesystem:
-    directory: ./data/loki/chunks
+  # configures storing the chunks in S3
+  aws:
+    s3: s3://access_key:secret_access_key@rgw.noris.net/myBucket
 # Configures global and per-tenant limits for ingesting logs in Loki.
 limits_config:
   # Enforce every sample has a metric name.

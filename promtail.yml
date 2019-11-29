@@ -78,13 +78,14 @@ scrape_configs:
             source: service_requests
             config:
               action: inc
-
-  - job_name: journal
-    journal:
-      max_age: 12h
-      path: /var/log/journal
-      labels:
-        job: systemd-journal
-    relabel_configs:
-      - source_labels: ['__journal__systemd_unit']
-        target_label: 'unit'
+# uncomment this for sending journald message,
+# will only work on Linux OS with journald
+#  - job_name: journal
+#    journal:
+#      max_age: 12h
+#      path: /var/log/journal
+#      labels:
+#        job: systemd-journal
+#    relabel_configs:
+#      - source_labels: ['__journal__systemd_unit']
+#        target_label: 'unit'

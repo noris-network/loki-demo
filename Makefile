@@ -29,6 +29,9 @@ run/log_gen:
 run/loki:
 	./$(BIN_DIR)/loki -config.file loki.yml
 
+run/loki/s3:
+	./$(BIN_DIR)/loki -config.file loki-s3.yml
+
 run/promtail:
 	./$(BIN_DIR)/promtail -config.file promtail.yml
 
