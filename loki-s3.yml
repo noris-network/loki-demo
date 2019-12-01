@@ -57,7 +57,7 @@ storage_config:
     directory: ./data/loki/index
   # configures storing the chunks in S3
   aws:
-    s3: s3://access_key:secret_access_key@rgw.noris.net/myBucket
+    s3: s3://%%ACCESSKEY%%:%%SECRETKEY%%@%%S3ENDPOINT%%/%%BUCKETNAME%%
 # Configures global and per-tenant limits for ingesting logs in Loki.
 limits_config:
   # Enforce every sample has a metric name.

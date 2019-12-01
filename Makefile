@@ -3,6 +3,7 @@ BIN_DIR ?= bin
 LOG_DIR ?= logs
 DATA_DIR ?= data
 LOG_GEN_BIN = $(BIN_DIR)/log_gen
+CONFIG_FILE ?= loki-s3.yml
 
 install: build download
 
@@ -30,7 +31,12 @@ run/loki:
 	./$(BIN_DIR)/loki -config.file loki.yml
 
 run/loki/s3:
-	./$(BIN_DIR)/loki -config.file loki-s3.yml
+	test -f .loki-s3.yml && rm .loki-s3.yml
+	@sed -e "s/%%ACCESSKEY%%/${ACCESSKEY}/g" $(CONFIG_FILE) > .loki-s3.yml
+	@sed -i "s/%%SECRETKEY%%/${SECRETKEY}/g" .$(CONFIG_FILE)
+	@sed -i "s/%%S3ENDPOINT%%/${S3ENDPOINT}/g" .$(CONFIG_FILE)
+	@sed -i "s/%%BUCKETNAME%%/${BUCKETNAME}/g" .$(CONFIG_FILE)
+	./$(BIN_DIR)/loki -config.file .loki-s3.yml
 
 run/promtail:
 	./$(BIN_DIR)/promtail -config.file promtail.yml
