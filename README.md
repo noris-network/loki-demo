@@ -44,11 +44,10 @@ make run/log_gen
 ```
 
 If you have an AWS S3 bucket, you can store loki's chunks in it with.
-However, before running this command you need to update your S3 credentials
-and bucket in name in `loki-s3.yml`
 
 ```shell
-make run/loki/s3
+make run/loki/s3 ACCESSKEY=<your aws access key>  SECRETKEY=<aws secret key> \
+     S3ENDPOINT=<s3 endoint>  BUCKETNAME=<bucket name>
 ```
 
 ## Using it

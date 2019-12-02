@@ -4,3 +4,4 @@ data/promtail/*
 *.log
 
 !.gitkeep
+.loki-s3.yml
