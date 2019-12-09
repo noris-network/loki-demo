@@ -1,4 +1,4 @@
-LOKI_VERSION ?= v1.0.0
+LOKI_VERSION ?= v1.1.0
 BIN_DIR ?= bin
 LOG_DIR ?= logs
 DATA_DIR ?= data
@@ -15,12 +15,12 @@ download: download/loki download/promtail
 clean: clean/logs clean/data clean/bin clean/docker
 
 download/loki:
-	curl -fSL -o "$(BIN_DIR)/loki.gz" "https://github.com/grafana/loki/releases/download/$(LOKI_VERSION)/loki-linux-amd64.gz"
+	curl -fSL -o "$(BIN_DIR)/loki.gz" "https://github.com/grafana/loki/releases/download/$(LOKI_VERSION)/loki-linux-amd64.zip"
 	gunzip $(BIN_DIR)/loki.gz
 	chmod a+x $(BIN_DIR)/loki
 
 download/promtail:
-	curl -fSL -o "$(BIN_DIR)/promtail.gz" "https://github.com/grafana/loki/releases/download/$(LOKI_VERSION)/promtail-linux-amd64.gz"
+	curl -fSL -o "$(BIN_DIR)/promtail.gz" "https://github.com/grafana/loki/releases/download/$(LOKI_VERSION)/promtail-linux-amd64.zip"
 	gunzip $(BIN_DIR)/promtail.gz
 	chmod a+x $(BIN_DIR)/promtail
 
