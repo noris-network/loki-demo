@@ -85,7 +85,7 @@ the logs via [LogQL][logql]:
 ![Example LogQL query with functions][query2]
 
 ```
-sum by(handler)(rate(({job="demo_log"})[5m]))
+sum by (handler) (rate({job="demo_log", handler!=""})[5m])
 ```
 
 ## Cleanup

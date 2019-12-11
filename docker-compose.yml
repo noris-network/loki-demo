@@ -2,7 +2,7 @@ version: "3.7"
 services:
   grafana:
     container_name: grafana
-    image: grafana/grafana:6.4.4
+    image: grafana/grafana:6.5.1
     volumes:
       - "grafana_data:/var/lib/grafana"
     network_mode: "host"
