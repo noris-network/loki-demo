@@ -11,8 +11,7 @@ build: main.go
 	go build -o $(LOG_GEN_BIN) main.go
 
 download: download/loki download/promtail
-
-clean: clean/logs clean/data clean/bin clean/docker
+clean: clean/data clean/bin
 
 download/loki:
 	curl -fSL -o "$(BIN_DIR)/loki.gz" "https://github.com/grafana/loki/releases/download/$(LOKI_VERSION)/loki-linux-amd64.zip"
@@ -50,7 +49,7 @@ run/docker/down:
 clean/logs:
 	find $(LOG_DIR) -regex ".*log" -delete
 
-clean/data:
+clean/loki:
 	find $(DATA_DIR)/loki -type d -not -regex "data/loki" -exec rm -rf "{}" \; || /bin/true
 	find $(DATA_DIR)/promtail -type f -not -regex ".*gitkeep$$" -exec rm "{}" \;
 
@@ -59,3 +58,5 @@ clean/bin:
 
 clean/docker:
 	docker volume ls | tail -n+2 | grep loki-demo | awk '{print $$2}' | xargs docker volume rm || /bin/true
+
+clean/data: clean/loki clean/logs clean/docker
